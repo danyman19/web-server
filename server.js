@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.send("Hello!!!!");
+  res.send("Hello!!!!!");
 });
 app.get("/hello", (req, res) => {
   res.send("I am learning how to develop a website :D");
@@ -39,9 +39,9 @@ app.get("/projects", (req, res) => {
   ];
   const tag = req.query.tag || null;
 
-  if(tag==null){
-    res.send(projects)
-    return
+  if (tag == null) {
+    res.send(projects);
+    return;
   }
 
   const out = [];
@@ -54,7 +54,7 @@ app.get("/projects", (req, res) => {
 
   if (out.length == 0) {
     res.send("No projects found with that tag");
-    return
+    return;
   }
 
   res.send(out);
