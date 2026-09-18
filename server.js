@@ -9,18 +9,10 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.static("public"));
-// app.get("/", (req, res) => {
-//   res.sendFile(join(import.meta.dirname, "public", "index.html"));
-// });
 
-// app.get("/entries", (req, res) => {
-//   const entries = [
-//     { title: "First note", body: "one" },
-//     { title: "Second note", body: "two" },
-//     { title: "Third note", body: "three" },
-//   ];
-//   res.render("entries", { entries: entries });
-// });
+app.get("/about", (req, res) => {
+  res.render("about", { title: "About" });
+});
 
 app.get("/events", (req, res) => {
   const events = [
@@ -31,7 +23,6 @@ app.get("/events", (req, res) => {
 
   res.render("events", { events });
 });
-
 app.get("/entries", (req, res) => {
   const entries = [
     { title: "First note" },
@@ -55,27 +46,6 @@ app.get("/entries/:id", (req, res) => {
   }
   const inner = entries[id].title;
   res.render("layout", { title: "Entry #" + id, body: inner });
-});
-
-app.get("/hello", (req, res) => {
-  res.send("I am learning how to develop a website :D");
-});
-
-app.get("/hello/:name", (req, res) => {
-  res.send("Hello, " + req.params.name + "!");
-});
-
-app.get("/repeat/:word", (req, res) => {
-  let x = req.params.word;
-
-  res.send(x + " " + x + " " + x);
-});
-
-app.get("/count", (req, res) => {
-  let from = req.query.from || 1;
-  let to = req.query.to || 10;
-
-  res.send("Counting from " + from + " to " + to);
 });
 
 app.use("/api", apiRouter);
