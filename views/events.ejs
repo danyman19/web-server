@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Events</title>
+  </head>
+  <body>
+    <h1>Events: </h1>
+    <ul>
+      <% events.forEach(event => { %>
+        <li><%= event.title %></li>
+      <% }); %>
+    </ul>
+
+    <% if(events.length==0){ %>
+      No events found
+    <% } %>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+<!---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>ENTRIES</title>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+    <h1>Cur Entries: </h1>
+    <ul>
+      <% entries.forEach(entry => { %>
+        <li><%= entry.title %></li>
+      <% }); %>
+    </ul>
+  </body>
+</html> -->
+
+<!doctype html>
+<ul>
+  <% entries.forEach(entry => { %>
+    <li><%= entry.title %></li>
+  <% }); %>
+</ul>
