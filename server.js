@@ -9,75 +9,53 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.static("public"));
+app.use(express.json());
 
 app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
 });
 
-app.get("/events", (req, res) => {
-  const events = [
-    // { title: "Birthday Party" },
-    // { title: "Coding Class" },
-    // { title: "Dinner" },
-  ];
+const entries = [
+  { title: "First note", body: "Notes from the first session." },
+  { title: "Second note", body: "Notes from the second session." },
+  { title: "Third note", body: "Notes from the third session." },
+];
 
-  res.render("events", { events });
-});
 app.get("/entries", (req, res) => {
-  const entries = [
-    { title: "First note" },
-    { title: "Second note" },
-    { title: "note 3" },
-  ];
-  const inner =
-    "<ul>" + entries.map((e) => `<li>${e.title}</li>`).join("") + "</ul>";
-  res.render("layout", { title: "Entries", body: inner, entries });
+  res.set("Cache-Control", "public, max-age=60");
+  res.set("X-Total-Count", entries.length);
+  res.status(200).render("entries", { title: "My Notes", entries });
 });
-app.get("/entries/:id", (req, res) => {
-  const entries = [
-    { title: "First note", body: "one" },
-    { title: "Second note", body: "two" },
-    { title: "Third note", body: "three" },
-  ];
-  const id = req.params.id;
-  if (id < 0 || id >= entries.length) {
-    res.status(404).send("Invalid ID");
+
+app.post("/entries", (req, res) => {
+  const { title, body } = req.body;
+
+  if (!title || !body) {
+    res.status(400).json({ error: "must have title/body" });
+  }
+
+  const newEntry = { title, body };
+  entries.push(newEntry);
+  res.status(201).json(newEntry);
+});
+
+const books = [{ name: "Harry Potter", author: "JK Rowling" }];
+
+app.get("/books", (req, res) => {
+  res.json(books);
+});
+
+app.post("/books", (req, res) => {
+  const { name, author } = req.body;
+  if (!name || !author) {
+    res.status(500).send("Missing a name/author field");
     return;
   }
-  const inner = entries[id].title;
-  res.render("layout", { title: "Entry #" + id, body: inner });
+  books.push({ name, author });
+  res.status(201).json({ name, author });
 });
 
 app.use("/api", apiRouter);
-
-app.get("/projects", (req, res) => {
-  const projects = [
-    { name: "Weather app", tag: "javascript" },
-    { name: "Portfolio site", tag: "express" },
-    { name: "Budget tracker", tag: "python" },
-  ];
-  const tag = req.query.tag || null;
-
-  if (tag == null) {
-    res.send(projects);
-    return;
-  }
-
-  const out = [];
-
-  for (let i = 0; i < projects.length; i++) {
-    if (projects[i].tag == tag) {
-      out.push(projects[i]);
-    }
-  }
-
-  if (out.length == 0) {
-    res.send("No projects found with that tag");
-    return;
-  }
-
-  res.send(out);
-});
 
 app.use((req, res) => {
   res.status(404).send("Page not found.");
