@@ -1,6 +1,5 @@
 import express from "express";
-import apiRouter from "./routes/api.js";
-import { join } from "path";
+import { readFile, writeFile } from "node:fs/promises";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,52 +9,72 @@ app.set("views", "views");
 
 app.use(express.static("public"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const ENTRIES_FILE = "entries.json";
+const readEntries = async () => {
+  const data = await readFile(ENTRIES_FILE, "utf-8");
+  return JSON.parse(data);
+};
+const writeEntries = async (entries) => {
+  await writeFile(ENTRIES_FILE, JSON.stringify(entries, null, 2));
+};
 
 app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
 });
 
-const entries = [
-  { title: "First note", body: "Notes from the first session." },
-  { title: "Second note", body: "Notes from the second session." },
-  { title: "Third note", body: "Notes from the third session." },
-];
-
-app.get("/entries", (req, res) => {
-  res.set("Cache-Control", "public, max-age=60");
+app.get("/entries", async (req, res) => {
+  const entries = await readEntries();
   res.set("X-Total-Count", entries.length);
   res.status(200).render("entries", { title: "My Notes", entries });
 });
 
-app.post("/entries", (req, res) => {
+app.post("/entries", async (req, res) => {
   const { title, body } = req.body;
 
   if (!title || !body) {
     res.status(400).json({ error: "must have title/body" });
+    return;
   }
 
+  const entries = await readEntries();
   const newEntry = { title, body };
   entries.push(newEntry);
+  await writeEntries(entries);
+
   res.status(201).json(newEntry);
 });
 
-const books = [{ name: "Harry Potter", author: "JK Rowling" }];
-
-app.get("/books", (req, res) => {
-  res.json(books);
-});
-
-app.post("/books", (req, res) => {
-  const { name, author } = req.body;
-  if (!name || !author) {
-    res.status(500).send("Missing a name/author field");
+app.post("/entries/classic", async (req, res) => {
+  const { title, body } = req.body;
+  if (!title || !body) {
+    res.status(400).send("title and body are required");
     return;
   }
-  books.push({ name, author });
-  res.status(201).json({ name, author });
+
+  const data = await readFile(ENTRIES_FILE, "utf-8");
+  const entries = JSON.parse(data);
+  entries.push({ title, body });
+  await writeFile(ENTRIES_FILE, JSON.stringify(entries, null, 2));
+
+  res.redirect("/entries");
 });
 
-app.use("/api", apiRouter);
+app.delete("/entries/:id", async (req, res) => {
+  const id = Number.parseInt(req.params.id);
+  const entries = await readEntries();
+
+  if (Number.isNaN(id) || id < 0 || id >= entries.length) {
+    res.status(400).json({ error: "must have title/body" });
+    return;
+  }
+
+  entries.splice(id, 1);
+  await writeEntries(entries);
+
+  res.status(204).send();
+});
 
 app.use((req, res) => {
   res.status(404).send("Page not found.");

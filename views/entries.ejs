@@ -1,4 +1,4 @@
--
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -7,18 +7,31 @@
   </head>
   <body>
     <%- include('partials/header') %>
-    <h1>Cur Entries: </h1>
-    <ul>
-      <% entries.forEach(entry => { %>
-        <li><%= entry.title %></li>
-      <% }); %>
-    </ul>
+
+    <form id="entry-form">
+      <input type="text" name="title" placeholder="Title">
+      <input type="text" name="body" placeholder="Body">
+      <button id = "entry-btn" type="submit">Add entry</button>
+    </form>
+
+    <ul id="entries">
+  <% entries.forEach((entry, index) => { %>
+    <li data-id="<%= index %>">
+      <span><strong><%= entry.title %>:</strong> <%= entry.body %></span>
+      <button class="delete-btn" type="button">Delete</button>
+    </li>
+  <% }); %>
+</ul>
+
+  <section class="classic-form">
+  <h2>Classic form (no JavaScript)</h2>
+  <form method="POST" action="/entries/classic">
+    <input type="text" name="title" placeholder="Title">
+    <input type="text" name="body" placeholder="Body">
+    <button type="submit">Add entry the classic way</button>
+  </form>
+</section>
+
+    <script src="/app.js" defer></script>
   </body>
 </html>
-
-<!-- <!doctype html>
-<ul>
-  <% entries.forEach(entry => { %>
-    <li><%= entry.title %></li>
-  <% }); %>
-</ul> -->
