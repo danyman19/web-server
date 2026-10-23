@@ -50,5 +50,8 @@ export const destroy = async (req, res) => {
     res.status(result.error.status).json({ error: result.error.message });
     return;
   }
-  res.status(204).send();
+  // res.status(200).send("");
+  // res.status(204).end();
+  res.status(404).json({ error: "nope" });
+  // res.status(200).send("<em>Deleted.</em>");
 };

@@ -1,6 +1,22 @@
 const form = document.querySelector("#entry-form");
 const list = document.querySelector("#entries");
 
+htmx.config.timeout = 5000;
+
+list.addEventListener("htmx:responseError", (event) => {
+  alert(
+    `That entry was not deleted. The server answered ${event.detail.xhr.status}.`,
+  );
+});
+list.addEventListener("htmx:sendError", () => {
+  alert("That entry was not deleted. Could not reach the server.");
+});
+list.addEventListener("htmx:timeout", () => {
+  alert(
+    "That entry was not deleted. The server did not answer within five seconds.",
+  );
+});
+
 // Every request gives up after five seconds instead of waiting forever.
 const timedFetch = (url, options = {}) =>
   fetch(url, { ...options, signal: AbortSignal.timeout(5000) });
@@ -67,6 +83,8 @@ const buildItem = (entry) => {
     makeButton("edit-btn", "Edit"),
     makeButton("delete-btn", "Delete"),
   );
+  htmx.process(item);
+
   return item;
 };
 
@@ -96,6 +114,7 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify(entry),
     });
     list.append(buildItem(saved));
+
     form.reset();
   } catch (error) {
     alert(`Your entry was not saved. ${error.message}`);
@@ -166,6 +185,8 @@ list.addEventListener("click", async (event) => {
     startEdit(event.target.closest("li"));
     return;
   }
+
+  return;
 
   if (!event.target.matches(".delete-btn")) return;
 
