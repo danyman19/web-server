@@ -1,5 +1,5 @@
 import express from "express";
-import entriesRouter from "./routes/entries.js";
+import entriesRouter from "./views/partials/entries.js";
 import morgan from "morgan";
 import mongoose from "mongoose";
 
